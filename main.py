@@ -3,7 +3,12 @@ import pandas
 import random
 
 BACKGROUND_COLOR = '#B1DDC6'
-data = pandas.read_csv('./data/french_words.csv')
+try:
+  data = pandas.read_csv('./data/words_to_learn.csv')
+except FileNotFoundError:
+  data = pandas.read_csv('./data/french_words.csv')
+
+
 to_learn = data.to_dict(orient='records')
 current_card = {}
 def next_card():
@@ -19,6 +24,14 @@ def flip_card():
   canvas.itemconfig(card_title, text="English", fill='white')
   canvas.itemconfig(card_word, text=current_card['English'], fill='white')
   canvas.itemconfig(card_backgound, image=card_back_image)
+
+def is_known():
+  global to_learn
+  to_learn.remove(current_card)
+  data = pandas.DataFrame(to_learn)
+  data.to_csv("data/words_to_learn.csv", index=False)
+
+  next_card()
 
 window = tkinter.Tk()
 window.title("Flashy")
@@ -41,7 +54,7 @@ canvas.grid(row=0, column=0, columnspan=2)
 unknown_button = tkinter.Button(image=x_image, highlightthickness=0, bd=0, command=next_card)
 unknown_button.grid(row=1, column=0)
 
-known_button = tkinter.Button(image=checkmark_image, highlightthickness=0, bd=0, command=next_card)
+known_button = tkinter.Button(image=checkmark_image, highlightthickness=0, bd=0, command=is_known)
 known_button.grid(row=1, column=1)
 
 next_card()
